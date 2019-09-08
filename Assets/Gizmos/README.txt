@@ -1,0 +1,1 @@
+Icons come from Mozilla open source Firefox OS emoji set: https://github.com/mozilla/fxemoji
