@@ -155,7 +155,12 @@ namespace CreateWindow
             AddInternal(typeof(LightmapParameters),"Lightmap Parameters", 305, "New Lightmap Parameters.giparams", () => new LightmapParameters());
             AddInternal(typeof(CustomRenderTexture),"Custom Render Texture", 306, "New Custom Render Texture.asset", () => new CustomRenderTexture(256, 256));
             
+            // not sure what is exact version
+#if UNITY_2018_2_OR_NEVER
             AddInternal(typeof(SpriteAtlas),"Sprite Atlas", 351, "New Sprite Atlas.spriteatlas", () => new SpriteAtlas());
+#else
+            AddInternal(typeof(SpriteAtlas),"Sprite Atlas", 351, "New Sprite Atlas.spriteatlas", () => Activator.CreateInstance<SpriteAtlas>());
+#endif
             var sprites = AddFolder("Sprites", 352);
             
             CreateSpritePolygonType createSprite =
