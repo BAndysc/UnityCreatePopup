@@ -37,8 +37,9 @@ namespace CreateWindow
 
                         if (string.IsNullOrEmpty(name))
                             name = type.Name;
-                        
-                        var parent = EnsureByPath(name, attr.order, out var itemName);
+
+                        string itemName;
+                        var parent = EnsureByPath(name, attr.order, out itemName);
 
                         var entry = new Entry(itemName, () =>
                         {
@@ -79,11 +80,12 @@ namespace CreateWindow
                             menuItems.Add(menuItemAttr.menuItem, (Entry.MenuItemDelegate)method.CreateDelegate(typeof(Entry.MenuItemDelegate), null));
                         }
                     }
- 
+
+                    Entry.ValidatorDelegate validator;
                     foreach (var menuItem in menuItems.Keys)
                     {
                         var method = menuItems[menuItem];
-                        validators.TryGetValue(menuItem, out var validator);
+                        validators.TryGetValue(menuItem, out validator);
 
                         if (validator == null)
                             validator = () => true;
@@ -91,7 +93,8 @@ namespace CreateWindow
                         var name = menuItem;
                         name = name.Replace("internal:", "").Replace("Assets/Create/", "");
 
-                        var parent = EnsureByPath(name, priority[menuItem], out var itemName);
+                        string itemName;
+                        var parent = EnsureByPath(name, priority[menuItem], out itemName);
 
                         var entry = new Entry(itemName, method, validator, parent, priority[menuItem]);
                             
@@ -131,8 +134,10 @@ namespace CreateWindow
             AddScriptTemplate("Playable Asset C# Script", 88, "NewPlayableAsset.cs", UnityScriptTemplates.PlayableAsset, playablesFolder);
           
             AddScriptTemplate("Assembly Definition", 91, "NewAssembly.asmdef", UnityScriptTemplates.AssemblyDefinition, null, typeof(AssemblyDefinitionAsset));
+            #if UNITY_2018_3_OR_NEVER
             AddScriptTemplate("Assembly Definition Reference", 92, "NewAssemblyReference.asmref", UnityScriptTemplates.AssemblyDefinitionReference, null, typeof(AssemblyDefinitionReferenceAsset));
-
+            #endif
+            
             entries.Add(new Entry("Scene", ProjectWindowUtil.CreateScene, () => true, null, 201, typeof(Scene)));
 
             var createAudioMixer =
@@ -197,12 +202,21 @@ namespace CreateWindow
             else
                 parent.Children.Add(entry);
         }
-        
+
+        private delegate void CreateScriptAsset(string templatePath, string destName);
         private static void AddScriptTemplate(string name, int priority, string file, string template, Entry parent = null, Type createdType = null)
         {
+#if !UNITY_2019_2_OR_NEVER
+            CreateScriptAsset createScriptAsset =
+                new InternalGetter<CreateScriptAsset>(typeof(ProjectWindowUtil), "CreateScriptAsset").Func;
+#endif
             var entry = new Entry(name, () =>
             {
+#if UNITY_2019_2_OR_NEVER
                 ProjectWindowUtil.CreateScriptAssetFromTemplateFile(template, file);
+#else
+                createScriptAsset(template, file);
+#endif
             }, () => true, parent, priority, createdType);
             
             if (parent == null)

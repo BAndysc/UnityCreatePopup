@@ -148,7 +148,8 @@ namespace CreateWindow
     
         public override void OnGUI(Rect rect)
         {
-            rect.SplitVertical(Styles.HEADER_HEIGHT, out var headerRect, out contentRect);
+            Rect headerRect;
+            rect.SplitVertical(Styles.HEADER_HEIGHT, out headerRect, out contentRect);
     
             DrawHeader(headerRect);
             DrawContent();
@@ -190,8 +191,10 @@ namespace CreateWindow
                 Styles.toolbar.Draw(headerRect, GUIContent.none, false, false, false, false);
             
             headerRect = headerRect.Padding(((int)headerRect.height - (int)Styles.toolbarSearch.fixedHeight) / 2);
-            
-            headerRect.SplitHorizontal((int)headerRect.width - (int)Styles.toolbarCancel.fixedWidth, out var searchRect, out var cancelRect);
+
+            Rect searchRect;
+            Rect cancelRect;
+            headerRect.SplitHorizontal((int)headerRect.width - (int)Styles.toolbarCancel.fixedWidth, out searchRect, out cancelRect);
     
             GUI.SetNextControlName(nameof(searchText));
             searchText = EditorGUI.TextField(searchRect, searchText, Styles.toolbarSearch);
@@ -298,8 +301,9 @@ namespace CreateWindow
                     icons.Add(icon, t);
                 }
             }
-    
-            icons.TryGetValue(name, out var tex);
+
+            Texture tex;
+            icons.TryGetValue(name, out tex);
             return tex;
         }
         

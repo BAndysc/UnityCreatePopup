@@ -35,6 +35,9 @@ namespace CreateWindow
                         new CreatePopupWindowContent());
                 }
 
+                if (oldProcessEvent == null)
+                    return false;
+                
                 return oldProcessEvent(a, b);
             };
 
