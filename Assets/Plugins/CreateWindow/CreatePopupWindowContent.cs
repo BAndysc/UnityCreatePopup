@@ -318,7 +318,8 @@ namespace CreateWindow
                 content.image = GetTextureByName("Folder Icon");
             else if (text == "Signal")
                     content.image = GetTextureByName("SignalAsset Icon");
-            else if (text == "Prefab Variant") 
+            else if (text == "Prefab Variant" ||
+                     text == "Prefab") 
                 content.image = GetTextureByName("Prefab Icon");
             else if ((text == "Standard Surface Shader") ||
                      (text == "Unlit Shader") ||

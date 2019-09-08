@@ -134,12 +134,16 @@ namespace CreateWindow
             AddScriptTemplate("Playable Asset C# Script", 88, "NewPlayableAsset.cs", UnityScriptTemplates.PlayableAsset, playablesFolder);
           
             AddScriptTemplate("Assembly Definition", 91, "NewAssembly.asmdef", UnityScriptTemplates.AssemblyDefinition, null, typeof(AssemblyDefinitionAsset));
-            #if UNITY_2018_3_OR_NEVER
+#if UNITY_2018_3_OR_NEVER
             AddScriptTemplate("Assembly Definition Reference", 92, "NewAssemblyReference.asmref", UnityScriptTemplates.AssemblyDefinitionReference, null, typeof(AssemblyDefinitionReferenceAsset));
-            #endif
+#endif
             
             entries.Add(new Entry("Scene", ProjectWindowUtil.CreateScene, () => true, null, 201, typeof(Scene)));
 
+#if !UNITY_2018_3_OR_NEVER
+            entries.Add(new Entry("Prefab", ProjectWindowUtil.CreatePrefab, () => true, null, 202));
+#endif
+            
             var createAudioMixer =
                 typeof(ProjectWindowUtil).GetMethod("CreateAudioMixer", BindingFlags.NonPublic | BindingFlags.Static);
             
