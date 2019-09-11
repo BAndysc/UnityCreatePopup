@@ -134,13 +134,13 @@ namespace CreateWindow
             AddScriptTemplate("Playable Asset C# Script", 88, "NewPlayableAsset.cs", UnityScriptTemplates.PlayableAsset, playablesFolder);
           
             AddScriptTemplate("Assembly Definition", 91, "NewAssembly.asmdef", UnityScriptTemplates.AssemblyDefinition, null, typeof(AssemblyDefinitionAsset));
-#if UNITY_2018_3_OR_NEVER
+#if UNITY_2019_1_OR_NEWER
             AddScriptTemplate("Assembly Definition Reference", 92, "NewAssemblyReference.asmref", UnityScriptTemplates.AssemblyDefinitionReference, null, typeof(AssemblyDefinitionReferenceAsset));
 #endif
             
             entries.Add(new Entry("Scene", ProjectWindowUtil.CreateScene, () => true, null, 201, typeof(Scene)));
 
-#if !UNITY_2018_3_OR_NEVER
+#if !UNITY_2018_3_OR_NEWER
             entries.Add(new Entry("Prefab", ProjectWindowUtil.CreatePrefab, () => true, null, 202));
 #endif
             
@@ -156,7 +156,7 @@ namespace CreateWindow
             AddInternal(typeof(CustomRenderTexture),"Custom Render Texture", 306, "New Custom Render Texture.asset", () => new CustomRenderTexture(256, 256));
             
             // not sure what is exact version
-#if UNITY_2018_2_OR_NEVER
+#if UNITY_2018_2_OR_NEWER
             AddInternal(typeof(SpriteAtlas),"Sprite Atlas", 351, "New Sprite Atlas.spriteatlas", () => new SpriteAtlas());
 #else
             AddInternal(typeof(SpriteAtlas),"Sprite Atlas", 351, "New Sprite Atlas.spriteatlas", () => Activator.CreateInstance<SpriteAtlas>());
@@ -215,13 +215,13 @@ namespace CreateWindow
         private delegate void CreateScriptAsset(string templatePath, string destName);
         private static void AddScriptTemplate(string name, int priority, string file, string template, Entry parent = null, Type createdType = null)
         {
-#if !UNITY_2019_2_OR_NEVER
+#if !UNITY_2019_2_OR_NEWER
             CreateScriptAsset createScriptAsset =
                 new InternalGetter<CreateScriptAsset>(typeof(ProjectWindowUtil), "CreateScriptAsset").Func;
 #endif
             var entry = new Entry(name, () =>
             {
-#if UNITY_2019_2_OR_NEVER
+#if UNITY_2019_2_OR_NEWER
                 ProjectWindowUtil.CreateScriptAssetFromTemplateFile(template, file);
 #else
                 createScriptAsset(template, file);
