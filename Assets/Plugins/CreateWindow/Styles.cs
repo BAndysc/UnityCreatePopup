@@ -32,6 +32,8 @@ namespace CreateWindow
             itemStyle.normal.background =  GenerateTexture(new Color(1, 1, 1,0));
             itemStyle.hover.background = GenerateTexture(new Color(17 / 255.0f, 88/ 255.0f, 158/ 255.0f));
             itemStyle.hover.textColor = Color.white;
+            if (EditorGUIUtility.isProSkin)
+                itemStyle.normal.textColor = new Color(0.9f, 0.9f, 0.9f);
 
             itemStyle.alignment = TextAnchor.MiddleLeft;
             itemStyle.padding.left = 10;
