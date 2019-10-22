@@ -203,7 +203,9 @@ namespace CreateWindow
             if (!first) 
                 return;
             
-            GUI.FocusControl(nameof(searchText));
+            editorWindow.Focus();
+            EditorGUI.FocusTextInControl(nameof(searchText));
+
             first = false;
         }
     
@@ -282,7 +284,12 @@ namespace CreateWindow
         }
     
         private Dictionary<string, Texture> icons = new Dictionary<string, Texture>();
-        private HashSet<string> important = new HashSet<string>(){"cs Script Icon", "ScriptableObject Icon", "TimelineAsset Icon", "Folder Icon",  "SignalAsset Icon", "SceneAsset Icon", "AudioMixerController Icon", "Prefab Icon", "Shader Icon"};
+        private HashSet<string> important = new HashSet<string>(){
+            "js Script Icon", "cs Script Icon", "ScriptableObject Icon",
+            "TimelineAsset Icon", "Folder Icon",  "SignalAsset Icon", "SceneAsset Icon", 
+            "AudioMixerController Icon", "Prefab Icon", "Shader Icon",
+            "RayTracingShader Icon", "AssemblyDefinitionAsset Icon", "AssemblyDefinitionReferenceAsset Icon"
+        };
         private bool init;
     
         private delegate Texture2D LoadIconDelegate(string name);
@@ -326,11 +333,19 @@ namespace CreateWindow
                      (text == "Image Effect Shader") ||
                      (text == "Compute Shader"))
                 content.image = GetTextureByName("Shader Icon");
+            else if (text == "Ray Tracing Shader")
+                content.image = GetTextureByName("RayTracingShader Icon");
+            else if (text == "Assembly Definition Reference")
+                content.image = GetTextureByName("AssemblyDefinitionReferenceAsset Icon");
+            else if (text == "Assembly Definition")
+                content.image = GetTextureByName("AssemblyDefinitionAsset Icon");
             else if ((text == "C# Script") ||
                      (text == "Playable Behaviour C# Script") ||
                      (text == "Playable Asset C# Script") ||
-                     (text == "C# Test Script"))
+                     (text == "C# Test Script")) 
                 content.image = GetTextureByName("cs Script Icon");
+            else if (text == "Javascript")
+                content.image = GetTextureByName("js Script Icon");
             else if (type == typeof(AudioMixer))
             {
                 // workaround: ObjectContent(null, typeof(AudioMixer)) returns wrong icon

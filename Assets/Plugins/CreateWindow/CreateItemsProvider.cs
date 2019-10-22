@@ -119,25 +119,17 @@ namespace CreateWindow
         private static void AddInternals()
         {
             entries.Add(new Entry("Folder", ProjectWindowUtil.CreateFolder, () => true, null, 20));
-           
-            AddScriptTemplate("C# Script", 81, "New Script.cs", UnityScriptTemplates.NewBehaviourScriptPath);
-            
-            var shaderFolder = AddFolder("Shader", 83);
-            AddScriptTemplate("Standard Surface Shader", 83, "NewSurfaceShader.shader", UnityScriptTemplates.StandardSurfaceShader, shaderFolder);
-            AddScriptTemplate("Unlit Shader", 83, "NewUnlitShader.shader", UnityScriptTemplates.UnlitShader, shaderFolder);
-            AddScriptTemplate("Image Effect Shader", 83, "NewImageEffectShader.shader", UnityScriptTemplates.ImageEffectShader, shaderFolder);
-            AddScriptTemplate("Compute Shader", 83, "NewComputeShader.compute", UnityScriptTemplates.ComputeShader, shaderFolder);
-            AddInternal(typeof(ShaderVariantCollection), "Shader Variant Collection", 84, "New Shader Variant Collection.shadervariants", () => new ShaderVariantCollection(), shaderFolder);
 
-            var playablesFolder = AddFolder("Playables", 87);
-            AddScriptTemplate("Playable Behaviour C# Script", 87, "NewPlayableBehaviour.cs", UnityScriptTemplates.PlayableBehaviour, playablesFolder);
-            AddScriptTemplate("Playable Asset C# Script", 88, "NewPlayableAsset.cs", UnityScriptTemplates.PlayableAsset, playablesFolder);
-          
-            AddScriptTemplate("Assembly Definition", 91, "NewAssembly.asmdef", UnityScriptTemplates.AssemblyDefinition, null, typeof(AssemblyDefinitionAsset));
-#if UNITY_2019_1_OR_NEWER
-            AddScriptTemplate("Assembly Definition Reference", 92, "NewAssemblyReference.asmref", UnityScriptTemplates.AssemblyDefinitionReference, null, typeof(AssemblyDefinitionReferenceAsset));
-#endif
-            
+            var shaderFolder = AddFolder("Shader", 82);
+
+            foreach (var entry in UnityScriptTemplates.Entries)
+            {
+                string itemName;
+                var parent = EnsureByPath(entry.Path, entry.Priority, out itemName);
+                AddScriptTemplate(itemName, entry.Priority, entry.FileName, entry.TemplatePath, parent);
+            }
+            AddInternal(typeof(ShaderVariantCollection), "Shader Variant Collection", 94, "New Shader Variant Collection.shadervariants", () => new ShaderVariantCollection(), shaderFolder);
+
             entries.Add(new Entry("Scene", ProjectWindowUtil.CreateScene, () => true, null, 201, typeof(Scene)));
 
 #if !UNITY_2018_3_OR_NEWER
@@ -189,10 +181,18 @@ namespace CreateWindow
 
         private static Entry AddFolder(string name, int priority, Entry parent = null)
         {
-            var entry = new Entry(name, parent, priority);
+            Entry entry;
+            var key = name + "/";
+            if (byPath.TryGetValue(key, out entry))
+                return entry;
             
+            entry = new Entry(name, parent, priority);
+
             if (parent == null)
+            {
                 entries.Add(entry);
+                byPath[key] = entry; 
+            }
             else
                 parent.Children.Add(entry);
             
@@ -215,13 +215,13 @@ namespace CreateWindow
         private delegate void CreateScriptAsset(string templatePath, string destName);
         private static void AddScriptTemplate(string name, int priority, string file, string template, Entry parent = null, Type createdType = null)
         {
-#if !UNITY_2019_2_OR_NEWER
+#if !UNITY_2019_1_OR_NEWER
             CreateScriptAsset createScriptAsset =
                 new InternalGetter<CreateScriptAsset>(typeof(ProjectWindowUtil), "CreateScriptAsset").Func;
 #endif
             var entry = new Entry(name, () =>
             {
-#if UNITY_2019_2_OR_NEWER
+#if UNITY_2019_1_OR_NEWER
                 ProjectWindowUtil.CreateScriptAssetFromTemplateFile(template, file);
 #else
                 createScriptAsset(template, file);

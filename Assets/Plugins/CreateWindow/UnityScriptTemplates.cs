@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,15 @@ namespace CreateWindow
 {
     internal static class UnityScriptTemplates
     {
+        // they are somehow ignored normally
+        private static string[] ignoredTemplates =
+        {
+            "92-Assembly Definition-NewEditModeTestAssembly.asmdef", "92-Assembly Definition-NewTestAssembly.asmdef", // 2018.1 +
+            "83-C# Script-NewTestScript.cs", // 2018.1 +
+            
+            "86-C# Script-NewStateMachineBehaviourScript.cs", "86-C# Script-NewSubStateMachineBehaviourScript.cs", // 2017 + 
+        };
+        
         static UnityScriptTemplates()
         {
             var entryAssembly = new StackTrace().GetFrames().Last().GetMethod().Module.Assembly;
@@ -23,30 +33,41 @@ namespace CreateWindow
                 return;
             }
 
-            NewBehaviourScriptPath = scriptTemplatesDir + "81-C# Script-NewBehaviourScript.cs.txt";
-            StandardSurfaceShader =
-                scriptTemplatesDir + "83-Shader__Standard Surface Shader-NewSurfaceShader.shader.txt";
-            UnlitShader = scriptTemplatesDir + "84-Shader__Unlit Shader-NewUnlitShader.shader.txt";
-            ImageEffectShader = scriptTemplatesDir + "85-Shader__Image Effect Shader-NewImageEffectShader.shader.txt";
-            ComputeShader = scriptTemplatesDir + "90-Shader__Compute Shader-NewComputeShader.compute.txt";
-            
-            PlayableBehaviour = scriptTemplatesDir + "87-Playables__Playable Behaviour C# Script-NewPlayableBehaviour.cs.txt";
-            PlayableAsset = scriptTemplatesDir + "88-Playables__Playable Asset C# Script -NewPlayableAsset.cs.txt";
-            
-            AssemblyDefinition = scriptTemplatesDir + "91-Assembly Definition-NewAssembly.asmdef.txt";
-            AssemblyDefinitionReference = scriptTemplatesDir + "93-Assembly Definition Reference-NewAssemblyReference.asmref.txt";
+            string [] fileEntries = Directory.GetFiles(scriptTemplatesDir);
+            Entries = new List<Entry>();
+            foreach (string fullPath in fileEntries)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(fullPath);
+                
+                if (ignoredTemplates.Contains(fileName))
+                    continue;
+                var parts = fileName.Split('-');
+                Debug.Assert(parts.Length == 3, "Unexpected path: " + fullPath);
+
+                var index = Convert.ToInt32(parts[0]);
+                var path = parts[1].Replace("__", "/");
+                var generatedFileName = parts[2];
+                
+                Entries.Add(new Entry(index, path.Trim(), generatedFileName, fullPath));
+            }
         }
 
-        public static String NewBehaviourScriptPath;
-        public static String StandardSurfaceShader;
-        public static String UnlitShader;
-        public static String ImageEffectShader;
-        public static String ComputeShader;
+        internal static readonly List<Entry> Entries;
         
-        public static String PlayableBehaviour;
-        public static String PlayableAsset;
-        
-        public static String AssemblyDefinition;
-        public static String AssemblyDefinitionReference;
+        public class Entry
+        {
+            public readonly int Priority;
+            public readonly string Path;
+            public readonly string FileName;
+            public readonly string TemplatePath;
+
+            public Entry(int priority, string path, string fileName, string templatePath)
+            {
+                Priority = priority;
+                Path = path;
+                FileName = fileName;
+                TemplatePath = templatePath;
+            }
+        }
     }
 }
